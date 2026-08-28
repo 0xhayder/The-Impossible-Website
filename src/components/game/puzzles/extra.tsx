@@ -284,6 +284,18 @@ export function SpoilersStage() {
         <p>4. type /escape in the bar. that is a place.</p>
         <p>5. the tall door is a trap. pick the left one.</p>
         <p>6. skip the rest. you have a life. allegedly.</p>
+        <p>
+          7. still stuck? cheating is a kind of dying.{" "}
+          <a
+            href="https://github.com/0xhayder/The-Impossible-Website"
+            target="_blank"
+            rel="noreferrer"
+            className="text-bone/80 underline decoration-line underline-offset-4 hover:text-bone"
+          >
+            the autopsy is public
+          </a>
+          . ask the corpse for GAME_GUIDE.
+        </p>
         <div className="flex flex-wrap gap-4 pt-2">
           <QuietButton
             onClick={() => {

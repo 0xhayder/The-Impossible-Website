@@ -1,50 +1,102 @@
 # THE IMPOSSIBLE WEBSITE
 
-A mysterious interactive website that **is** the game.
+> A website that doesn't want you to leave.
 
-There are no instructions. There is no tutorial. You arrive somewhere you should not be, and you have to figure out how to leave.
+**THE IMPOSSIBLE WEBSITE** is an interactive puzzle experience disguised as a strange, broken website.
 
-Progress lives in the browser. There is no account, no backend, and no database.
+There are no instructions. No obvious objective. The interface lies, buttons behave strangely, the browser chrome is part of the puzzle, and sometimes the only way forward is to stop doing anything at all.
 
-## Concept
+Explore. Experiment. Pay attention.
 
-The site looks like a dark, quiet page. The fake browser chrome — address bar, mute, close, the little ticks — is part of the puzzle. The site lies. It also remembers how you treat it. Patience is usually more honest than clicking harder.
+The website remembers.
+
+## Play
+
+**[▶ Enter THE IMPOSSIBLE WEBSITE](https://the-impossible-website.vercel.app/)**
 
 ## Features
 
-- A sequence of rooms that refuse to explain themselves
-- Multiple endings, including ones that look finished and are not
-- The address bar is a door
-- Progress survives refresh
-- Desktop and mobile
+* 🧩 **24 main rooms** with hidden interactions and unconventional puzzles
+* 🚪 **10 different endings**, each discovered through different behavior
+* 🕳️ **Secret rooms and hidden paths**
+* 🧠 **Adaptive clues** that become clearer when you're stuck
+* 💾 **Persistent local progress** across refreshes and sessions
+* 🕵️ **A second layer** hidden behind completion
+* 🌐 **Browser chrome as part of the game**
+* 📱 **Mobile-friendly interactions**
+* 🎭 **Lies, fake exits, misleading instructions, and secrets**
 
-## Run locally
+Nothing is sent to a server for game progress. Your experience is stored locally in your browser.
+
+## Documentation
+
+* **[GAME GUIDE](./GAME_GUIDE.md)**
+  Complete walkthrough, hints, secrets, rooms, endings, and mechanics. **Major spoilers.**
+
+* **[LICENSE](./LICENSE)**
+  MIT License.
+
+## Run Locally
+
+Clone the repository:
+
+```bash
+git clone https://github.com/0xhayder/The-Impossible-Website.git
+cd The-Impossible-Website
+```
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:8080](http://localhost:8080).
+Then open the local address shown in your terminal.
+
+## Build
+
+Create a production build:
 
 ```bash
 npm run build
-npm run typecheck
-npm run lint
 ```
 
-## Stack
+Preview the production build:
 
-React, TanStack Start, Vite, Tailwind CSS, Zustand. The experience is entirely client-side.
+```bash
+npm run preview
+```
 
-## Spoilers
+## Tech Stack
 
-This README is spoiler-free. A complete walkthrough is in [GAME_GUIDE.md](./GAME_GUIDE.md). Do not open it if you want to play clean.
+* React
+* TypeScript
+* TanStack Start / Router
+* Vite
+* Tailwind CSS
+* Zustand
+* Nitro
 
-## Contribute
+## The Rules
 
-Play first. If a room feels broken rather than secret, open an issue with the path in the address bar and what you tried. Please do not paste full solutions in public issues.
+There aren't many.
 
-## License
+**Don't trust everything you see.**
 
-MIT. See [LICENSE](./LICENSE).
+**Don't assume a button is a button.**
+
+**Don't assume leaving is leaving.**
+
+And when nothing seems to happen...
+
+**wait.**
+
+---
+
+Made as an experiment in interactive web design, puzzle design, and the weird things a website can become when you stop treating it like a normal website.
