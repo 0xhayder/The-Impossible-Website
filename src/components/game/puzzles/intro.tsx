@@ -31,6 +31,13 @@ export function BootStage() {
         <button
           type="button"
           onClick={() => {
+            const coarse =
+              typeof window !== "undefined" &&
+              window.matchMedia("(pointer: coarse)").matches;
+            if (coarse) {
+              advance();
+              return;
+            }
             if (focused) {
               advance();
               return;
@@ -44,6 +51,13 @@ export function BootStage() {
         <button
           type="button"
           onClick={() => {
+            const coarse =
+              typeof window !== "undefined" &&
+              window.matchMedia("(pointer: coarse)").matches;
+            if (coarse) {
+              advance();
+              return;
+            }
             inputRef.current?.focus();
             setFocused(true);
             if (hint) advance();
@@ -104,6 +118,7 @@ export function ArriveStage() {
 
   function flee(e: React.PointerEvent) {
     if (frozen) return;
+    if (e.pointerType === "touch") return;
     armIdle();
     const el = btnRef.current;
     if (!el) return;

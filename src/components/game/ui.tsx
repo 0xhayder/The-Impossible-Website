@@ -80,6 +80,7 @@ export function QuietButton({
       className={cn(
         "min-h-11 min-w-11 px-4 font-sans text-sm tracking-[0.18em] text-bone/80",
         "transition-[opacity,color,transform] duration-150 ease-out",
+        "touch-manipulation",
         "hover:text-bone focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-bone/40",
         !isStatic && "active:scale-[0.96]",
         className,
@@ -125,7 +126,7 @@ export function Door({
       onClick={onPick}
       className={cn(
         "group flex w-20 flex-col items-center justify-end border border-line bg-ink",
-        "transition-[border-color,transform] duration-200 ease-out",
+        "transition-[border-color,transform] duration-200 ease-out touch-manipulation",
         "hover:border-bone/35 active:scale-[0.96] sm:w-24",
         taller ? "h-56 sm:h-64" : "h-52 sm:h-60",
       )}
@@ -135,5 +136,22 @@ export function Door({
       </span>
       <span className="mb-5 size-1.5 rounded-full bg-line group-hover:bg-ash" />
     </button>
+  );
+}
+
+export function BuiltBy({ className }: { className?: string }) {
+  return (
+    <a
+      href="https://0xhayder.xyz"
+      target="_blank"
+      rel="noreferrer"
+      className={cn(
+        "font-mono text-[10px] tracking-[0.22em] text-line transition-colors duration-200",
+        "hover:text-ash",
+        className,
+      )}
+    >
+      built by Hayder
+    </a>
   );
 }

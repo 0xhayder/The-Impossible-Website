@@ -174,13 +174,13 @@ export function Chrome() {
             autoCapitalize="off"
             autoComplete="off"
             aria-label="address"
-            className="min-h-11 min-w-0 flex-1 bg-transparent text-bone caret-bone focus:outline-none"
+            className="min-h-11 min-w-0 flex-1 bg-transparent text-base text-bone caret-bone focus:outline-none sm:text-xs"
           />
         </label>
       </form>
 
       {status ? (
-        <p className="hidden max-w-[36%] truncate font-mono text-[10px] text-dust sm:block">
+        <p className="max-w-[32%] truncate font-mono text-[10px] text-dust sm:max-w-[36%]">
           {status}
         </p>
       ) : null}
@@ -217,7 +217,7 @@ export function Chrome() {
         type="button"
         aria-label={muted ? "sound off" : "sound on"}
         onClick={() => setMuted(!muted)}
-        className="grid size-11 place-items-center text-ash transition-colors duration-150 hover:text-bone"
+        className="grid size-11 place-items-center text-ash transition-colors duration-150 hover:text-bone touch-manipulation"
       >
         {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
       </button>
@@ -227,7 +227,7 @@ export function Chrome() {
         aria-label="close"
         onClick={onX}
         className={cn(
-          "grid size-11 place-items-center text-ash transition-colors duration-150 hover:text-bone",
+          "grid size-11 place-items-center text-ash transition-colors duration-150 hover:text-bone touch-manipulation",
           flags.canEgress && stage === "leave" && "text-bone",
         )}
       >

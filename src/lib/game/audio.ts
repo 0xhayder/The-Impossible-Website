@@ -64,14 +64,32 @@ async function resume() {
 
 export function unlockAudio() {
   unlocked = true;
-  void resume().then(() => {
-    applyMute(wantMuted);
-  });
+  const h = ensure();
+  if (h && h.ctx.state === "suspended") {
+    void h.ctx.resume();
+  }
+  kickIOS();
+  applyMute(wantMuted);
+}
+
+function kickIOS() {
+  const h = handle;
+  if (!h) return;
+  try {
+    const buf = h.ctx.createBuffer(1, 1, h.ctx.sampleRate);
+    const src = h.ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(h.ctx.destination);
+    src.start(0);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function setMuted(muted: boolean) {
   wantMuted = muted;
-  applyMute(muted);
+  if (!muted) unlockAudio();
+  else applyMute(true);
 }
 
 function applyMute(muted: boolean) {
@@ -119,14 +137,16 @@ export function glitchBurst() {
 export function attachUnlockListeners() {
   if (typeof window === "undefined") return () => undefined;
   const once = () => unlockAudio();
-  window.addEventListener("pointerdown", once, { once: true });
+  window.addEventListener("pointerdown", once, { once: true, capture: true });
+  window.addEventListener("touchstart", once, { once: true, capture: true, passive: true });
   window.addEventListener("keydown", once, { once: true });
   const vis = () => {
     if (document.visibilityState === "visible") void resume();
   };
   document.addEventListener("visibilitychange", vis);
   return () => {
-    window.removeEventListener("pointerdown", once);
+    window.removeEventListener("pointerdown", once, true);
+    window.removeEventListener("touchstart", once, true);
     window.removeEventListener("keydown", once);
     document.removeEventListener("visibilitychange", vis);
   };

@@ -1,7 +1,7 @@
 import { ENDINGS, type EndingId } from "@/lib/game/types";
 import { useGame } from "@/lib/game/store";
 import { readMeta } from "@/lib/game/memory";
-import { Display, QuietButton, StageFrame, Whisper } from "./ui";
+import { BuiltBy, Display, QuietButton, StageFrame, Whisper } from "./ui";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -89,6 +89,12 @@ export function Endings() {
   const copy = COPY[ending];
   const complete = endings.length >= ENDINGS.length;
   const [phase, setPhase] = useState(0);
+  const [credit, setCredit] = useState(false);
+
+  useEffect(() => {
+    const c = window.setTimeout(() => setCredit(true), 7000);
+    return () => window.clearTimeout(c);
+  }, [ending]);
 
   useEffect(() => {
     if (!complete) return;
@@ -161,6 +167,8 @@ export function Endings() {
             {endings.length} of {ENDINGS.length} ways to be done
           </p>
         )}
+
+        {credit ? <BuiltBy className="enter-rise-late pt-6" /> : null}
       </div>
     </StageFrame>
   );

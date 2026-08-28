@@ -42,6 +42,31 @@ export function Game() {
   }, [hydrate]);
 
   useEffect(() => {
+    const apply = () => {
+      const touch =
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(hover: none)").matches;
+      document.documentElement.classList.toggle("is-touch", touch);
+    };
+    apply();
+    const coarse = window.matchMedia("(pointer: coarse)");
+    const hover = window.matchMedia("(hover: none)");
+    coarse.addEventListener("change", apply);
+    hover.addEventListener("change", apply);
+    const blockSelect = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      e.preventDefault();
+    };
+    document.addEventListener("selectstart", blockSelect);
+    return () => {
+      coarse.removeEventListener("change", apply);
+      hover.removeEventListener("change", apply);
+      document.removeEventListener("selectstart", blockSelect);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!hydrated) return;
     const line = CONSOLE_LIES[stage];
     if (line) {

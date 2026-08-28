@@ -197,6 +197,7 @@ export function interpretPath(raw: string): {
     "/door": "the door is not a door.",
     "/wait": "yes.",
     "/away": "don't look.",
+    "/hayder": "someone signed the walls.",
   };
   if (whispers[path]) return { action: "whisper", path, whisper: whispers[path] };
 

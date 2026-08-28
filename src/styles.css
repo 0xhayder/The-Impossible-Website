@@ -28,6 +28,16 @@
     -moz-osx-font-smoothing: grayscale;
     background: var(--color-void);
     color: var(--color-bone);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html,
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
   }
 
   body {
@@ -39,12 +49,27 @@
     overflow: hidden;
   }
 
+  input,
+  textarea {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
   button:not(:disabled),
-  [role="button"]:not(:disabled) {
+  [role="button"]:not(:disabled),
+  a {
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   ::selection {
+    background: transparent;
+    color: inherit;
+  }
+
+  input::selection,
+  textarea::selection {
     background: var(--color-bone);
     color: var(--color-void);
   }
@@ -127,6 +152,18 @@
 }
 .layer-two .site-vignette {
   background: radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.72) 100%);
+}
+
+@media (hover: none), (pointer: coarse) {
+  button:hover,
+  a:hover {
+    color: inherit;
+    border-color: inherit;
+  }
+
+  button:not(:disabled):active {
+    opacity: 0.82;
+  }
 }
 
 @keyframes caret-blink {

@@ -3,7 +3,7 @@ import { blip, glitchBurst } from "@/lib/game/audio";
 import { useGame } from "@/lib/game/store";
 import { writeMeta } from "@/lib/game/memory";
 import { cn } from "@/lib/utils";
-import { Display, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
+import { BuiltBy, Display, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
 
 export function CookiesStage() {
   const advance = useGame((s) => s.advance);
@@ -240,6 +240,7 @@ export function CreditsStage() {
         <p>design: nobody</p>
         <p>sound: the hum in your walls</p>
         <p>the letter was F</p>
+        <BuiltBy className="text-dust" />
         <p>combination 0000</p>
         <p>real exit: the word leave</p>
         <p>legal: the cookies ate it</p>
