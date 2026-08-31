@@ -10,7 +10,7 @@ Explore. Experiment. Pay attention.
 
 The website remembers.
 
-[![Impoosible Website](./public/preview.png)](https:the-impossible.website)
+[![Impoosible Website](./public/preview.png)](https://the-impossible.website)
 
 ## Play
 
