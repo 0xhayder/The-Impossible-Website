@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX, X } from "lucide-react";
 import { ENDINGS, MAIN_PATH, STAGE_TITLE } from "@/lib/game/types";
-import { canOpenRoot, interpretPath } from "@/lib/game/secrets";
-import { bump, canOpenOther, readMeta } from "@/lib/game/memory";
+import { applyPath, interpretPath } from "@/lib/game/secrets";
 import { useGame } from "@/lib/game/store";
-import { blip, glitchBurst } from "@/lib/game/audio";
+import { blip } from "@/lib/game/audio";
 import { cn } from "@/lib/utils";
 
 export function Chrome() {
@@ -16,11 +15,7 @@ export function Chrome() {
   const visited = useGame((s) => s.visited);
   const whisper = useGame((s) => s.whisper);
   const setMuted = useGame((s) => s.setMuted);
-  const setPath = useGame((s) => s.setPath);
   const unlockEnding = useGame((s) => s.unlockEnding);
-  const advance = useGame((s) => s.advance);
-  const flag = useGame((s) => s.flag);
-  const go = useGame((s) => s.go);
   const setForgetOpen = useGame((s) => s.setForgetOpen);
   const setWhisper = useGame((s) => s.setWhisper);
 
@@ -48,72 +43,11 @@ export function Chrome() {
 
   function submitPath(raw: string) {
     const result = interpretPath(raw);
-    setPath(result.path);
     setDraft(result.path);
     setMsg(null);
     setWhisper("");
-
-    if (result.action === "found") {
-      if (stage === "lost") {
-        advance();
-        return;
-      }
-      setMsg("not that lost yet");
-      return;
-    }
-    if (result.action === "root") {
-      if (canOpenRoot(flags)) unlockEnding("root");
-      else {
-        setMsg("permission denied");
-        glitchBurst();
-      }
-      return;
-    }
-    if (result.action === "about") {
-      flag("openedAbout");
-      setMsg("a website that refuses to be one");
-      return;
-    }
-    if (result.action === "home") {
-      setMsg("you already left home");
-      return;
-    }
-    if (result.action === "escape") {
-      setMsg("not a place. we checked.");
-      return;
-    }
-    if (result.action === "lost") {
-      go("lost");
-      return;
-    }
-    if (result.action === "room" && result.room) {
-      bump("address");
-      if (result.room === "other") {
-        const open = canOpenOther() || flags.layer2 || readMeta().layer2;
-        if (!open) {
-          setMsg("other. hand.");
-          return;
-        }
-      }
-      go(result.room);
-      return;
-    }
-    if (result.action === "ending" && result.ending) {
-      if (result.ending === "customer") unlockEnding("customer");
-      if (result.ending === "obituary") unlockEnding("obituary");
-      if (result.ending === "spoiled") unlockEnding("spoiled");
-      if (result.ending === "product") {
-        if (flags.acceptedCookies) unlockEnding("product");
-        else setMsg("you have no data. you refused it.");
-      }
-      return;
-    }
-    if (result.action === "whisper" && result.whisper) {
-      setMsg(result.whisper);
-      if (result.path === "/please") flag("typedPlease");
-      return;
-    }
-    setMsg("nothing lives there. something died there.");
+    const msg = applyPath(raw);
+    if (msg) setMsg(msg);
   }
 
   function onX() {

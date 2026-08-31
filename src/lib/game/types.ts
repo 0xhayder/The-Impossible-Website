@@ -79,7 +79,9 @@ export type FlagName =
   | "clickedSkip"
   | "layer2"
   | "metaSolved"
-  | "lookedAway";
+  | "lookedAway"
+  | "necessaryOnly"
+  | "surveyLiar";
 
 export type GameSave = {
   version: number;
@@ -98,7 +100,7 @@ export type GameSave = {
   whisper: string;
 };
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 export const SAVE_KEY = "impossible-website-save";
 
 export const STAGE_TITLE: Record<StageId, string> = {
@@ -201,12 +203,80 @@ export function defaultSave(): GameSave {
   };
 }
 
-export function nextStage(current: StageId): StageId {
-  if (current === "ending") return "ending";
-  const i = MAIN_PATH.indexOf(current as (typeof MAIN_PATH)[number]);
-  if (i < 0) return current;
-  if (i >= MAIN_PATH.length - 1) return "leave";
-  return MAIN_PATH[i + 1] ?? "leave";
+export function nextStage(
+  current: StageId,
+  flags: Partial<Record<FlagName, boolean>> = {},
+  visited: StageId[] = [],
+  lastMain: StageId = "boot",
+): StageId {
+  switch (current) {
+    case "boot":
+      return "arrive";
+    case "arrive":
+      return "policy";
+    case "policy":
+      return flags.declinedPolicy ? "faq" : "cookies";
+    case "faq":
+      return "cookies";
+    case "cookies":
+      if (flags.acceptedCookies) return "inbox";
+      if (flags.rejectedCookies) return "absence";
+      return "invert";
+    case "inbox":
+      return "invert";
+    case "absence":
+      return "invert";
+    case "invert":
+      return "listen";
+    case "listen":
+      return "stay";
+    case "stay":
+      return "crash";
+    case "crash":
+      return "identity";
+    case "identity":
+      return "survey";
+    case "obituary":
+      return "survey";
+    case "admin":
+      return "survey";
+    case "survey":
+      if (flags.surveyLiar) return "helpdesk";
+      return "enough";
+    case "enough":
+      return "proximity";
+    case "proximity":
+      return "sentence";
+    case "sentence":
+      return "doors";
+    case "doors":
+      return visited.includes("helpdesk") ? "static" : "helpdesk";
+    case "helpdesk":
+      if (flags.surveyLiar || visited.includes("doors")) return "static";
+      return lastMain !== "helpdesk" ? lastMain : "arrive";
+    case "static":
+      return "letter";
+    case "letter":
+      return "lost";
+    case "lost":
+      return "gaze";
+    case "gaze":
+      return "confession";
+    case "confession":
+      return "seal";
+    case "seal":
+      return "credits";
+    case "credits":
+      return "leave";
+    case "spoilers":
+    case "other":
+      return lastMain !== current ? lastMain : "arrive";
+    case "leave":
+    case "ending":
+      return "leave";
+    default:
+      return "leave";
+  }
 }
 
 export function stageIndex(stage: StageId): number {

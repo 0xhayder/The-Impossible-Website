@@ -109,7 +109,8 @@ export const useGame = create<GameStore>((set, get) => ({
   },
 
   advance: () => {
-    const n = nextStage(get().stage);
+    const s = get();
+    const n = nextStage(s.stage, s.flags, s.visited, s.lastMain);
     blip("ok");
     get().go(n);
   },

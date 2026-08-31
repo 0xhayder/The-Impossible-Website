@@ -3,7 +3,7 @@ import { useGame } from "@/lib/game/store";
 import { addFrag } from "@/lib/game/memory";
 import { blip } from "@/lib/game/audio";
 import { cn } from "@/lib/utils";
-import { Display, QuietButton, StageFrame, Whisper } from "../ui";
+import { Display, PathWord, QuietButton, StageFrame, Whisper } from "../ui";
 
 export function BootStage() {
   const advance = useGame((s) => s.advance);
@@ -215,7 +215,8 @@ export function PolicyStage() {
               the door that is not a door
             </span>{" "}
             will wait. refunds are for the living. by continuing you agree to have
-            already agreed.
+            already agreed. unanswered things are filed under{" "}
+            <PathWord path="/faq">faq</PathWord>.
           </p>
           <p className="text-dust">
             access is granted only to those who remain still. the{" "}

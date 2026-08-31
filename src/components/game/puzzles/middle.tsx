@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { blip, glitchBurst } from "@/lib/game/audio";
 import { useGame } from "@/lib/game/store";
 import { cn } from "@/lib/utils";
-import { Display, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
+import { Display, PathWord, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
 
 export function ListenStage() {
   const advance = useGame((s) => s.advance);
@@ -52,6 +52,7 @@ export function StayStage() {
   const advance = useGame((s) => s.advance);
   const [msg, setMsg] = useState<string | null>(null);
   const [armed, setArmed] = useState(false);
+  const [left, setLeft] = useState(false);
   const stayAt = useRef<number | null>(null);
 
   function onRemain() {
@@ -75,6 +76,7 @@ export function StayStage() {
         <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
           <QuietButton
             onClick={() => {
+              setLeft(true);
               setMsg("you left. there is no corridor. the door is not a door.");
               blip("warn");
             }}
@@ -94,6 +96,12 @@ export function StayStage() {
           </QuietButton>
         </div>
         {msg ? <Whisper className="min-h-6">{msg}</Whisper> : <div className="min-h-6" />}
+        {left ? (
+          <p className="font-mono text-[10px] tracking-[0.18em] text-line">
+            <PathWord path="/heaven">heaven</PathWord> is full.{" "}
+            <PathWord path="/hell">hell</PathWord> also.
+          </p>
+        ) : null}
       </div>
     </StageFrame>
   );
@@ -110,24 +118,33 @@ function runCommand(raw: string): {
   ok?: boolean;
   xyzzy?: boolean;
   about?: boolean;
-  go?: "inbox" | "obituary" | "spoilers" | "admin";
+  go?: "inbox" | "obituary" | "spoilers" | "admin" | "faq" | "credits";
 } {
   const cmd = raw.trim().toLowerCase().replace(/\s+/g, " ");
   if (!cmd) return { lines: [] };
   if (cmd === "help")
-    return { lines: ["commands are not listed. listing would be mercy."] };
+    return { lines: ["commands are not listed. try ls. listing would be mercy."] };
   if (cmd === "ls")
-    return { lines: ["core.js    door    about    root    mail    spoiler    other"] };
+    return {
+      lines: ["core.js  mail  spoiler  other  faq.txt  obituary  robots.txt  humans.txt  door"],
+    };
   if (cmd === "cat core.js" || cmd === "cat")
     return { lines: ["function believe(site) {", "  return site.exit;", "}"] };
+  if (cmd === "cat faq.txt" || cmd === "faq")
+    return { lines: ["unanswered."], go: "faq" };
+  if (cmd === "cat robots.txt" || cmd === "robots" || cmd === "robots.txt")
+    return { lines: ["user-agent: *", "disallowed: you"] };
+  if (cmd === "cat humans.txt" || cmd === "humans" || cmd === "humans.txt")
+    return { lines: ["nobody wrote this. see /humans.txt"] };
   if (cmd === "open" || cmd === "open door" || cmd === "door")
     return { lines: ["locked. so was the coffin. that opened."] };
   if (cmd === "believe") return { lines: ["…"], ok: true };
-  if (cmd === "xyzzy") return { lines: ["a hollow voice says 'fool'"], xyzzy: true };
+  if (cmd === "xyzzy")
+    return { lines: ["a hollow voice says 'fool'", "an older cheat still uses arrows"], xyzzy: true };
   if (cmd === "exit" || cmd === "escape")
     return { lines: ["nice try. dying is not a command."] };
   if (cmd === "sudo exit" || cmd === "sudo")
-    return { lines: ["you are not in the sudoers file. you are in the ground."] };
+    return { lines: ["you are not in the sudoers file. you are in the ground. try /admin"] };
   if (cmd === "root") return { lines: ["permission denied"] };
   if (cmd === "about")
     return { lines: ["a website that refuses to be one"], about: true };
@@ -137,15 +154,16 @@ function runCommand(raw: string): {
   if (cmd === "hint")
     return { lines: ["type exit. (this is a lie.)"] };
   if (cmd === "please") return { lines: ["manners will not reboot the dead."] };
-  if (cmd === "kill" || cmd === "killall")
-    return { lines: ["you cannot kill what is not running."] };
+  if (cmd === "kill" || cmd === "killall" || cmd === "die")
+    return { lines: ["you cannot kill what is not running."], go: "obituary" };
   if (cmd === "mail" || cmd === "inbox") return { lines: ["1 unread"], go: "inbox" };
   if (cmd === "spoiler") return { lines: ["loading lies…"], go: "spoilers" };
+  if (cmd === "admin") return { lines: ["permission maybe"], go: "admin" };
   if (cmd === "rm -rf /" || cmd === "rm")
     return { lines: ["deleted nothing. nothing was already gone."] };
   if (cmd === "man") return { lines: ["no man. no manual."] };
   if (cmd === "clear") return { lines: ["__clear__"] };
-  return { lines: ["command not found. like the others."] };
+  return { lines: ["command not found. like the others. ls."] };
 }
 
 export function CrashStage() {
@@ -226,11 +244,13 @@ export function CrashStage() {
 
 export function IdentityStage() {
   const advance = useGame((s) => s.advance);
+  const go = useGame((s) => s.go);
   const flag = useGame((s) => s.flag);
   const [who, setWho] = useState("visitor");
   const [why, setWhy] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [ghost, setGhost] = useState(false);
+  const [fails, setFails] = useState(0);
 
   useEffect(() => {
     const t = window.setTimeout(() => setGhost(true), 2200);
@@ -241,6 +261,11 @@ export function IdentityStage() {
     e.preventDefault();
     const w = who.trim().toLowerCase();
     const y = why.trim().toLowerCase();
+    if (w === "admin") {
+      go("admin");
+      return;
+    }
+    const dying = /\b(die|dead|death)\b/.test(y);
     const whyOk = [
       "leave",
       "to leave",
@@ -253,6 +278,11 @@ export function IdentityStage() {
       "because",
       "i don't know",
     ].includes(y);
+    if (w === "nobody" && dying) {
+      flag("nobody");
+      go("obituary");
+      return;
+    }
     if (w === "nobody" && whyOk) {
       flag("nobody");
       advance();
@@ -263,6 +293,7 @@ export function IdentityStage() {
       blip("warn");
       return;
     }
+    setFails((n) => n + 1);
     setErr("we don't recognize you");
     blip("warn");
   }
@@ -308,6 +339,11 @@ export function IdentityStage() {
           />
         </label>
         {err ? <p className="font-sans text-xs text-ash">{err}</p> : null}
+        {fails >= 2 ? (
+          <p className="font-mono text-[10px] tracking-[0.2em] text-line">
+            staff wait in <PathWord path="/admin">/admin</PathWord>
+          </p>
+        ) : null}
         <QuietButton type="submit">enter</QuietButton>
       </form>
     </StageFrame>

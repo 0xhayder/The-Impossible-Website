@@ -196,9 +196,12 @@ export function LeaveStage() {
   const flags = useGame((s) => s.flags);
   const muted = useGame((s) => s.muted);
   const [crack, setCrack] = useState(false);
+  const [word, setWord] = useState(false);
 
   useEffect(() => {
     if (flags.konami) setCrack(true);
+    const t = window.setTimeout(() => setWord(true), 8000);
+    return () => window.clearTimeout(t);
   }, [flags.konami]);
 
   const rootReady = canOpenRoot(flags);
@@ -232,6 +235,11 @@ export function LeaveStage() {
           the corner of the frame has always been a door. we kept the liver.
           {flags.typedGoodbye ? " a word also works." : ""}
         </Whisper>
+        {word && !flags.typedGoodbye ? (
+          <p className="font-mono text-[10px] tracking-[0.22em] text-line">
+            funerals start with goodbye
+          </p>
+        ) : null}
         {crack ? (
           <button
             type="button"

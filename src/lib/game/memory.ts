@@ -111,4 +111,11 @@ export const TRUE_FOOTER: Record<string, string> = {
   survey: "zero is also a score",
   lost: "some addresses are found",
   absence: "the hole",
+  stay: "heaven is full",
+  crash: "the living type ls",
+  identity: "nobody. or die trying",
+  leave: "people say goodbye",
+  policy: "questions are filed",
+  cookies: "mail for the willing",
+  credits: "humans.txt",
 };

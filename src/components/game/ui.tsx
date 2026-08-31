@@ -1,4 +1,6 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, Ref } from "react";
+import { applyPath } from "@/lib/game/secrets";
+import { useGame } from "@/lib/game/store";
 import { cn } from "@/lib/utils";
 
 export function StageFrame({
@@ -153,5 +155,33 @@ export function BuiltBy({ className }: { className?: string }) {
     >
       built by Hayder
     </a>
+  );
+}
+
+export function PathWord({
+  path,
+  children,
+  className,
+}: {
+  path: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  const setWhisper = useGame((s) => s.setWhisper);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const msg = applyPath(path);
+        if (msg) setWhisper(msg);
+      }}
+      className={cn(
+        "font-mono tracking-[0.12em] text-dust underline decoration-line underline-offset-4",
+        "hover:text-ash",
+        className,
+      )}
+    >
+      {children}
+    </button>
   );
 }

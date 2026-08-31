@@ -1,6 +1,7 @@
-import { blip } from "./audio";
+import { blip, glitchBurst } from "./audio";
 import { useGame } from "./store";
 import type { StageId } from "./types";
+import { bump, canOpenOther, readMeta } from "./memory";
 
 const KONAMI = [
   "ArrowUp",
@@ -205,6 +206,63 @@ export function interpretPath(raw: string): {
   if (whispers[path]) return { action: "whisper", path, whisper: whispers[path] };
 
   return { action: "unknown", path };
+}
+
+export function applyPath(raw: string): string | null {
+  const result = interpretPath(raw);
+  const s = useGame.getState();
+  s.setPath(result.path);
+
+  if (result.action === "found") {
+    if (s.stage === "lost") {
+      s.advance();
+      return null;
+    }
+    return "not that lost yet";
+  }
+  if (result.action === "root") {
+    if (canOpenRoot(s.flags)) {
+      s.unlockEnding("root");
+      return null;
+    }
+    glitchBurst();
+    return "permission denied";
+  }
+  if (result.action === "about") {
+    s.flag("openedAbout");
+    return "a website that refuses to be one";
+  }
+  if (result.action === "home") return "you already left home";
+  if (result.action === "escape") return "not a place. we checked.";
+  if (result.action === "lost") {
+    s.go("lost");
+    return null;
+  }
+  if (result.action === "room" && result.room) {
+    bump("address");
+    if (result.room === "other") {
+      const open = canOpenOther() || s.flags.layer2 || readMeta().layer2;
+      if (!open) return "other. hand.";
+    }
+    s.go(result.room);
+    return null;
+  }
+  if (result.action === "ending" && result.ending) {
+    if (result.ending === "customer") s.unlockEnding("customer");
+    if (result.ending === "obituary") s.unlockEnding("obituary");
+    if (result.ending === "spoiled") s.unlockEnding("spoiled");
+    if (result.ending === "product") {
+      if (s.flags.acceptedCookies) s.unlockEnding("product");
+      else return "you have no data. you refused it.";
+    }
+    return null;
+  }
+  if (result.action === "whisper" && result.whisper) {
+    if (result.path === "/please") s.flag("typedPlease");
+    blip("tick");
+    return result.whisper;
+  }
+  return "nothing lives there. something died there.";
 }
 
 export function canOpenRoot(flags: {

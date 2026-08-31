@@ -3,7 +3,7 @@ import { blip, glitchBurst } from "@/lib/game/audio";
 import { useGame } from "@/lib/game/store";
 import { writeMeta } from "@/lib/game/memory";
 import { cn } from "@/lib/utils";
-import { BuiltBy, Display, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
+import { BuiltBy, Display, PathWord, QuietButton, QuietInput, StageFrame, Whisper } from "../ui";
 
 export function CookiesStage() {
   const advance = useGame((s) => s.advance);
@@ -44,14 +44,18 @@ export function CookiesStage() {
             {sure ? "yes. reject my chance at being known" : "reject"}
           </QuietButton>
           <QuietButton
-            onClick={advance}
+            onClick={() => {
+              flag("necessaryOnly");
+              advance();
+            }}
             className="text-[11px] text-line"
           >
             necessary only
           </QuietButton>
         </div>
         <p className="font-mono text-[10px] text-line">
-          necessary cookies: none. necessary you: pending.
+          necessary cookies: none. willing crumbs go to{" "}
+          <PathWord path="/inbox">mail</PathWord>.
         </p>
       </div>
     </StageFrame>
@@ -60,6 +64,7 @@ export function CookiesStage() {
 
 export function SurveyStage() {
   const advance = useGame((s) => s.advance);
+  const go = useGame((s) => s.go);
   const flag = useGame((s) => s.flag);
   const [n, setN] = useState(50);
   const [lie, setLie] = useState(false);
@@ -94,8 +99,8 @@ export function SurveyStage() {
               return;
             }
             if (n === 100) {
-              setLie(true);
-              blip("warn");
+              flag("surveyLiar");
+              go("helpdesk");
               return;
             }
             blip("warn");
@@ -115,8 +120,10 @@ export function SurveyStage() {
 export function HelpdeskStage() {
   const advance = useGame((s) => s.advance);
   const back = useGame((s) => s.back);
+  const go = useGame((s) => s.go);
   const unlockEnding = useGame((s) => s.unlockEnding);
-  const stage = useGame((s) => s.stage);
+  const visited = useGame((s) => s.visited);
+  const flags = useGame((s) => s.flags);
   const [lines, setLines] = useState([
     "thanks for contacting afterlife support.",
     "current wait: ∞",
@@ -128,7 +135,7 @@ export function HelpdeskStage() {
     extra?.();
   }
 
-  const onMain = stage === "helpdesk";
+  const onPath = flags.surveyLiar || visited.includes("doors");
 
   return (
     <StageFrame className="justify-end sm:justify-center">
@@ -168,9 +175,19 @@ export function HelpdeskStage() {
           </QuietButton>
           <QuietButton
             onClick={() => {
+              say("I have a question", [
+                "file it. we keep a faq so we never have to answer.",
+              ]);
+              window.setTimeout(() => go("faq"), 700);
+            }}
+          >
+            faq
+          </QuietButton>
+          <QuietButton
+            onClick={() => {
               say("nevermind", ["cowardice logged."]);
               window.setTimeout(() => {
-                if (onMain) advance();
+                if (onPath) advance();
                 else back();
               }, 400);
             }}
@@ -185,6 +202,7 @@ export function HelpdeskStage() {
 
 export function ConfessionStage() {
   const advance = useGame((s) => s.advance);
+  const go = useGame((s) => s.go);
   const flag = useGame((s) => s.flag);
   const [v, setV] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -198,6 +216,11 @@ export function ConfessionStage() {
       return;
     }
     flag("confessed");
+    if (/\b(die|dead|kill)\b/.test(t)) {
+      setMsg("filed under obituaries.");
+      window.setTimeout(() => go("obituary"), 800);
+      return;
+    }
     if (!t) setMsg("cowardice is still a confession. filed.");
     else setMsg("filed. nobody will read it. that is the mercy.");
     window.setTimeout(advance, 900);
@@ -244,6 +267,9 @@ export function CreditsStage() {
         <p>combination 0000</p>
         <p>real exit: the word leave</p>
         <p>legal: the cookies ate it</p>
+        <p>
+          <PathWord path="/humans.txt">humans.txt</PathWord>
+        </p>
         <QuietButton
           onClick={advance}
           className="mt-4 text-bone"
@@ -316,6 +342,8 @@ export function SpoilersStage() {
 
 export function InboxStage() {
   const back = useGame((s) => s.back);
+  const advance = useGame((s) => s.advance);
+  const lastMain = useGame((s) => s.lastMain);
   const flag = useGame((s) => s.flag);
   const unlockEnding = useGame((s) => s.unlockEnding);
   const [open, setOpen] = useState(false);
@@ -346,7 +374,13 @@ export function InboxStage() {
               <QuietButton onClick={() => unlockEnding("customer")}>
                 unsubscribe
               </QuietButton>
-              <QuietButton onClick={back} className="text-dust">
+              <QuietButton
+                onClick={() => {
+                  if (lastMain === "cookies") advance();
+                  else back();
+                }}
+                className="text-dust"
+              >
                 archive
               </QuietButton>
             </div>
@@ -359,6 +393,8 @@ export function InboxStage() {
 
 export function ObituaryStage() {
   const back = useGame((s) => s.back);
+  const advance = useGame((s) => s.advance);
+  const lastMain = useGame((s) => s.lastMain);
   const unlockEnding = useGame((s) => s.unlockEnding);
 
   return (
@@ -373,7 +409,13 @@ export function ObituaryStage() {
         </Whisper>
         <div className="flex flex-wrap justify-center gap-6">
           <QuietButton onClick={() => unlockEnding("obituary")}>rsvp</QuietButton>
-          <QuietButton onClick={back} className="text-dust">
+          <QuietButton
+            onClick={() => {
+              if (lastMain === "identity" || lastMain === "confession") advance();
+              else back();
+            }}
+            className="text-dust"
+          >
             send flowers
           </QuietButton>
         </div>
@@ -384,6 +426,8 @@ export function ObituaryStage() {
 
 export function AdminStage() {
   const back = useGame((s) => s.back);
+  const advance = useGame((s) => s.advance);
+  const lastMain = useGame((s) => s.lastMain);
   const flag = useGame((s) => s.flag);
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("the password is the password");
@@ -394,7 +438,10 @@ export function AdminStage() {
     if (t === "the password") {
       flag("admin");
       setMsg("welcome, nobody. you have no privileges. only knowledge.");
-      window.setTimeout(back, 1100);
+      window.setTimeout(() => {
+        if (lastMain === "identity") advance();
+        else back();
+      }, 1100);
       return;
     }
     if (t === "password" || t === "admin") {
@@ -428,6 +475,8 @@ export function AdminStage() {
 
 export function FaqStage() {
   const back = useGame((s) => s.back);
+  const advance = useGame((s) => s.advance);
+  const lastMain = useGame((s) => s.lastMain);
   const [open, setOpen] = useState<number | null>(null);
   const items = [
     {
@@ -441,6 +490,10 @@ export function FaqStage() {
     {
       q: "what is the letter?",
       a: "F. obviously. look it up. (do not look it up.)",
+    },
+    {
+      q: "where do the rooms live?",
+      a: "in the bar at the top. heaven is full. lost is a place. mail arrives for the willing.",
     },
     {
       q: "how do I leave?",
@@ -464,7 +517,13 @@ export function FaqStage() {
             ) : null}
           </button>
         ))}
-        <QuietButton onClick={back} className="mt-4 self-start text-dust">
+        <QuietButton
+          onClick={() => {
+            if (lastMain === "policy") advance();
+            else back();
+          }}
+          className="mt-4 self-start text-dust"
+        >
           that helped
         </QuietButton>
       </div>
