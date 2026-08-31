@@ -14,7 +14,7 @@ The website remembers.
 
 ## Play
 
-**[▶ Enter THE IMPOSSIBLE WEBSITE](https://the-impossible-website.vercel.app/)**
+**[▶ Enter THE IMPOSSIBLE WEBSITE](https://the-impossible.website)**
 
 ## Features
 
